@@ -1,0 +1,42 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Makia
+ * Date: 2018/10/11
+ * Time: 21:12
+ */
+
+namespace IcedCappuccino;
+
+DB::set([
+    "name" => "CYTB_WeChat",
+    "password" => "n6P8FQyQaClRSgw6UV8V8DyVBZU3bCj9",
+    "type" => "mysql",
+    "host" => "localhost",
+    "user" => "cytb"
+]);
+class Config
+{
+
+    private static $modules = [];
+    private static $controllors = [];
+
+    public static function setModules($item_modules){
+        self::$modules = $item_modules;
+    }
+
+    public static function setControllor($item_controllors){
+        self::$controllors = $item_controllors;
+    }
+
+    public static function isModules($name){
+//        var_dump(self::$modules);
+        return in_array($name,self::$modules);
+    }
+
+    public static function isControllor($name){
+//        var_dump(self::$controllors);
+        return in_array($name,self::$controllors);
+    }
+
+}

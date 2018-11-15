@@ -1,0 +1,35 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Makia
+ * Date: 2018/10/5
+ * Time: 14:10
+ */
+
+/**小程序ID*/
+define("__APP_ID__","");
+
+/**小程序SECRET*/
+define("__APP_SECRET__","");
+
+/**加载抽象*/
+require_once __DIR__."/IcedCappuccino/Abstract/ControllorAbstract.php";
+require_once __DIR__."/IcedCappuccino/Abstract/ModuleAbstract.php";
+
+/**加载工具*/
+require_once __DIR__."/IcedCappuccino/Filter/Stack.php";
+require_once __DIR__."/IcedCappuccino/DB.php";
+
+/**加载设置*/
+require_once __DIR__.'/IcedCappuccino/Config.php';
+
+/**路由开始*/
+require_once __DIR__ .'/IcedCappuccino/Controllor/Router.php';
+
+/**校准程序时间*/
+date_default_timezone_set("Asia/Shanghai");
+
+\IcedCappuccino\Config::setControllor([
+        'test',
+        'wxapp',
+    ]);

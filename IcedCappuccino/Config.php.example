@@ -10,7 +10,7 @@ namespace IcedCappuccino;
 
 DB::set([
     "name" => "CYTB_WeChat",
-    "password" => "n6P8FQyQaClRSgw6UV8V8DyVBZU3bCj9",
+    "password" => "",
     "type" => "mysql",
     "host" => "localhost",
     "user" => "cytb"

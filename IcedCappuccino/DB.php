@@ -51,16 +51,13 @@ class DB
      *@param array
      *@return \PDOStatement
      */
-    public static function executeSQL($sql=null,$where=[]){
+    public static function executeSQL($sql,$where=[]){
         try{
 //            $dsn = self::$type.":host=".self::$host.";dbname=".self::$name.";charset=".self::$charset;
 //            self::$pdo = new \PDO($dsn,self::$user,self::$password);
             $stmt = self::$pdo->prepare($sql);
             $stmt->execute($where);
-            if ($stmt->rowCount() > 0){
-                return $stmt;
-            }
-            else{
+            if(!$stmt){
                 $err = [
                     "isOK" => false,
                     "msg" => "Error Executed SQL",
@@ -71,5 +68,6 @@ class DB
         }catch (\Exception $exception){
             exit($exception->getMessage());
         }
+        return $stmt;
     }
 }

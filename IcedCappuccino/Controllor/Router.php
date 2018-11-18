@@ -55,6 +55,7 @@ class Router
                 include_once __DIR__."/$arr_action[1]ControllorClass.php";
                 @$obj = new $str_controllor($str_module,$str_method);
                 @$obj->run();
+                exit();
             }else{
                 throw new \Exception("<br>There is no $arr_action[1]ControllorClass!!");
             }}

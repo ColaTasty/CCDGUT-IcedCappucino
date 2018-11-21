@@ -38,10 +38,14 @@ abstract class ControllorAbstract
     public function toView($view_name)
     {
         try{
-            if (!file_exists(__DIR__."/../View/$view_name.php"))
-                throw new \Exception("$view_name.php is not found!!!",404);
-            include_once __DIR__."/../View/$view_name.php";
-        }catch (\Exception $exception){
+            if (file_exists(__DIR__."/../View/$view_name.php"))
+                include_once __DIR__."/../View/$view_name.php";
+            elseif (file_exists(__DIR__."/../View/$view_name.html"))
+                include_once __DIR__."/../View/$view_name.html";
+            else{
+                throw new \Exception("Page $view_name is not found!!!",404);
+            }
+        } catch (\Exception $exception){
             header("status:404");
             include_once __DIR__ . "/../View/404.php";
         }

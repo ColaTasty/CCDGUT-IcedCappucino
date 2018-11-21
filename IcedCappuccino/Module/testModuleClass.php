@@ -8,8 +8,10 @@
 
 namespace IcedCappuccino\M;
 
-//session_id("5mcmcc9gqsb9j0kfvbgc1sc6i0");
-//session_start();
+if (isset($_GET['ssid'])){
+    session_id($_GET['ssid']);
+    session_start();
+}
 use IcedCappuccino\C\Router;
 use IcedCappuccino\Config;
 use IcedCappuccino\DB;
@@ -38,5 +40,9 @@ class testModuleClass extends ModuleAbstract
 
     public function dd(){
         $this->setView("test");
+    }
+
+    public function openid(){
+        var_dump($_SESSION);
     }
 }

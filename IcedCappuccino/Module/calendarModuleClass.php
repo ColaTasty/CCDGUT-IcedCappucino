@@ -20,6 +20,8 @@ DB::connect();
 
 class calendarModuleClass extends ModuleAbstract
 {
+    const TABLES_PATH = __DIR__."/../../CalendarTables/";
+
     public function hello(){
         $this->setJSON("isOK",true);
         $this->setJSON("msg","hello world");
@@ -47,33 +49,61 @@ class calendarModuleClass extends ModuleAbstract
             $this->setJSON("isOK",false);
             $this->setJSON("msg","你还没有创建周程表噢，快新建一个吧!");
         }
-//        $this->setJSON("test",$_SESSION['openId']);
         return $this->getCallBack();
     }
 
     public function buildUp(){
         $table = json_decode($_POST['table']);
+        if (empty($table->table_name)){
+            $this->setJSON("isOK", false);
+            return $this->getJSON();
+        }
+        $t = time();
+        $str_path = self::TABLES_PATH.$_SESSION["openId"];
+        $days = [
+            "Mon" => json_encode($table->Mon),
+            "Tue" => json_encode($table->Tue),
+            "Wed" => json_encode($table->Wed),
+            "Thu" => json_encode($table->Thu),
+            "Fri" => json_encode($table->Fri),
+            "Sat" => json_encode($table->Sat),
+            "Sun" => json_encode($table->Sun),
+        ];
+        $paths = [
+            "Mon" => md5($t."Mon".$_SESSION["openId"]),
+            "Tue" => md5($t."Tue".$_SESSION["openId"]),
+            "Wed" => md5($t."Wed".$_SESSION["openId"]),
+            "Thu" => md5($t."Thu".$_SESSION["openId"]),
+            "Fri" => md5($t."Fri".$_SESSION["openId"]),
+            "Sat" => md5($t."Sat".$_SESSION["openId"]),
+            "Sun" => md5($t."Sun".$_SESSION["openId"])
+        ];
         $sql = "INSERT INTO Calendar(tname, Mon, Tue, Wed, Thu, Fri, Sat, Sun, openid, ttime) VALUES (:tname,:Mon,:Tue,:Wed,:Thu,:Fri,:Sat,:Sun,:openid,:ttime)";
         $where = [
             ":tname"=>$table->table_name,
-            ":Mon" => json_encode($table->Mon),
-            ":Tue" => json_encode($table->Tue),
-            ":Wed" =>json_encode($table->Wed),
-            ":Thu" =>json_encode($table->Thu),
-            ":Fri" =>json_encode($table->Fri),
-            ":Sat" =>json_encode($table->Sat),
-            ":Sun" =>json_encode($table->Sun),
             ":openid"=>$_SESSION["openId"],
             ":ttime" => time()
         ];
-        if (!empty($where[':tname'])){$stmt = DB::executeSQL($sql,$where);
-            if ($stmt->rowCount() > 0)
-                $this->setJSON("isOK",true);
-            else {
-                $this->setJSON("isOK", false);
+//        var_dump($paths);
+        if (!file_exists(self::TABLES_PATH))
+            mkdir(self::TABLES_PATH,0777);
+        if (!file_exists($str_path))
+            mkdir($str_path,0777);
+        foreach ($days as $key=>$value) {
+            $file = fopen($str_path."/".$paths[$key].".JSON","w");
+            if (!fwrite($file,$value)){
+                $this->setCallBack("File is writing unsuccessful");
+                exit($this->getCallBack());
             }
-        }else{
-            $this->setJSON("isOK",false);
+            chmod($str_path."/".$paths[$key].".JSON",0777);
+            fclose($file);
+            $where[":".$key] = $paths[$key];
+        }
+        $stmt = DB::executeSQL($sql,$where);
+        if ($stmt->rowCount() > 0)
+            $this->setJSON("isOK",true);
+        else {
+            $this->setJSON("isOK", false);
         }
         return $this->getCallBack();
     }
@@ -84,20 +114,29 @@ class calendarModuleClass extends ModuleAbstract
         $where = [
             ":tid" => $tid
         ];
+        $arr_files = [];
         $stmt = DB::executeSQL($sql,$where);
         if ($stmt->rowCount() > 0){
             $this->setJSON("isOK",true);
             foreach ($stmt as $row){
+                $file_path = self::TABLES_PATH.$row['openid']."/";
+                $arr_files = [
+                    'Mon' => $file_path.$row['Mon'].".JSON",
+                    'Tue' => $file_path.$row['Tue'].".JSON",
+                    'Wed' => $file_path.$row['Wed'].".JSON",
+                    'Thu' => $file_path.$row['Thu'].".JSON",
+                    'Fri' => $file_path.$row['Fri'].".JSON",
+                    'Sat' => $file_path.$row['Sat'].".JSON",
+                    'Sun' => $file_path.$row['Sun'].".JSON",
+                ];
                 $this->setJSON("tid",$row['tid']);
                 $this->setJSON("tname",$row['tname']);
-                $this->setJSON("Mon",$row['Mon']);
-                $this->setJSON("Tue",$row['Tue']);
-                $this->setJSON("Wed",$row['Wed']);
-                $this->setJSON("Thu",$row['Thu']);
-                $this->setJSON("Fri",$row['Fri']);
-                $this->setJSON("Sat",$row['Sat']);
-                $this->setJSON("Sun",$row['Sun']);
                 $this->setJSON("ttime",date("Y-m-d H:i:s",$row['ttime']));
+            }
+            foreach ($arr_files as $key => $path) {
+                $file = fopen($path,"r");
+                $this->setJSON($key,fread($file,filesize($path)));
+                fclose($file);
             }
         }else{
             $this->setJSON("isOK",false);
@@ -108,59 +147,71 @@ class calendarModuleClass extends ModuleAbstract
 
     public function reBuild(){
         $tid = $_POST['tid'];
-        $sql = "UPDATE Calendar SET ";
         $arr_days = [
-            ["Mon"=>($_POST['Mon']=="false" ? false : $_POST['Mon'])],
-            ["Tue"=>($_POST['Tue']=="false" ? false : $_POST['Tue'])],
-            ["Wed"=>($_POST['Wed']=="false" ? false : $_POST['Wed'])],
-            ["Thu"=>($_POST['Thu']=="false" ? false : $_POST['Thu'])],
-            ["Fri"=>($_POST['Fri']=="false" ? false : $_POST['Fri'])],
-            ["Sat"=>($_POST['Sat']=="false" ? false : $_POST['Sat'])],
-            ["Sun"=>($_POST['Sun']=="false" ? false : $_POST['Sun'])],
+            ["Mon"=>!($_POST['Mon']=="false" ? false : $_POST['Mon'])],
+            ["Tue"=>!($_POST['Tue']=="false" ? false : $_POST['Tue'])],
+            ["Wed"=>!($_POST['Wed']=="false" ? false : $_POST['Wed'])],
+            ["Thu"=>!($_POST['Thu']=="false" ? false : $_POST['Thu'])],
+            ["Fri"=>!($_POST['Fri']=="false" ? false : $_POST['Fri'])],
+            ["Sat"=>!($_POST['Sat']=="false" ? false : $_POST['Sat'])],
+            ["Sun"=>!($_POST['Sun']=="false" ? false : $_POST['Sun'])],
         ];
-        $stack = new Stack($arr_days);
-        $arr_tmp = [];
-        while (!$stack->isEmpty()){
-            foreach ($stack->pop(true) as $key => $value) {
-                if ((boolean)$value) {
-                    $arr_tmp[":" . $key] = $value;
+        $sql = "SELECT * FROM Calendar WHERE tid=:tid";
+        $where = [
+            ":tid" => $tid
+        ];
+        $str_path = self::TABLES_PATH;
+        $path = [];
+        $stmt = DB::executeSQL($sql,$where);
+        if ($stmt->rowCount() > 0){
+            foreach ($stmt as $row) {
+                $str_path .= $row['openid']."/";
+                $path['Mon'] = $str_path.$row['Mon'];
+                $path['Tue'] = $str_path.$row['Tue'];
+                $path['Wed'] = $str_path.$row['Wed'];
+                $path['Thu'] = $str_path.$row['Thu'];
+                $path['Fri'] = $str_path.$row['Fri'];
+                $path['Sat'] = $str_path.$row['Sat'];
+                $path['Sun'] = $str_path.$row['Sun'];
+            }
+            foreach ($arr_days as $key=>$value){
+                if ((bool)$value){
+                    $file = fopen($path[$key]."JSON","w+");
+                    if (!fwrite($file,$value))
+                        $this->setJSON("isOK",false);
+                    fclose($file);
                 }
             }
         }
-        end($arr_tmp);
-        $last_key = key($arr_tmp);
-        foreach ($arr_tmp as $key => $value){
-            $sql .= str_replace(":","",$key)."=$key";
-            if ($key != $last_key){
-                $sql .= ",";
-            }
-        }
-        $sql .= " WHERE tid=:tid";
-        $where = $arr_tmp;
-        $where[':tid'] = $tid;
-        $stmt = DB::executeSQL($sql,$where);
-        if ($stmt->rowCount() > 0){
-            $this->setJSON("isOK",true);
-        }else{
-            $this->setJSON("isOK",false);
-            $this->setJSON("msg",$stmt->errorInfo());
-        }
-
+        $this->setJSON("isOK",true);
         return $this->getCallBack();
     }
 
     public function delet(){
         $tid = $_POST['tid'];
-        $sql = "DELETE FROM Calendar WHERE tid = :tid";
+        $sql = "SELECT * FROM Calendar WHERE tid=:tid";
         $where = [
             ":tid" => $tid
         ];
         $stmt = DB::executeSQL($sql,$where);
         if ($stmt->rowCount() > 0){
+            foreach ($stmt as $row) {
+                $str_path = self::TABLES_PATH.$row['openid'];
+                unlink($str_path."/".$row['Mon'].".JSON");
+                unlink($str_path."/".$row['Tue'].".JSON");
+                unlink($str_path."/".$row['Wed'].".JSON");
+                unlink($str_path."/".$row['Thu'].".JSON");
+                unlink($str_path."/".$row['Fri'].".JSON");
+                unlink($str_path."/".$row['Sat'].".JSON");
+                unlink($str_path."/".$row['Sun'].".JSON");
+            }
+            $sql = "DELETE FROM Calendar WHERE tid = :tid";
+            $where = [
+                ":tid" => $tid
+            ];
             $this->setJSON("isOK",true);
-        }else{
-            $this->setJSON("isOK",true);
-            $this->setJSON("msg","删除失败了，服务器的原因，再试试吧");
+            if (!(DB::executeSQL($sql,$where)->rowCount()>0))
+                $this->setJSON("isOK",false);
         }
         return $this->getCallBack();
     }

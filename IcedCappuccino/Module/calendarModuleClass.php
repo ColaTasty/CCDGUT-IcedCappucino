@@ -6,12 +6,12 @@
  * Time: 15:20
  */
 
-namespace IcedCappuccino\M;
+namespace IcedCappuccino\Module;
 
 if(isset($_POST['sessionid'])){
     session_id($_POST['sessionid']);
+    session_start();
 }
-session_start();
 
 use IcedCappuccino\DB;
 use IcedCappuccino\Filter\Stack;

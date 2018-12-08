@@ -6,13 +6,13 @@
  * Time: 18:43
  */
 
-namespace IcedCappuccino\M;
+namespace IcedCappuccino\Module;
 
 if (isset($_GET['ssid'])){
     session_id($_GET['ssid']);
     session_start();
 }
-use IcedCappuccino\C\Router;
+use IcedCappuccino\Controllor\Router;
 use IcedCappuccino\Config;
 use IcedCappuccino\DB;
 use IcedCappuccino\Filter\Stack;
@@ -44,5 +44,9 @@ class testModuleClass extends ModuleAbstract
 
     public function openid(){
         var_dump($_SESSION);
+    }
+
+    public function school(){
+
     }
 }

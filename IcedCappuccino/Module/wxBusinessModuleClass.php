@@ -6,9 +6,9 @@
  * Time: 13:42
  */
 
-namespace IcedCappuccino\M;
+namespace IcedCappuccino\Module;
 
-use IcedCappuccino\C\Router;
+use IcedCappuccino\Controllor\Router;
 use IcedCappuccino\DB;
 use IcedCappuccino\ModuleAbstract;
 DB::connect();

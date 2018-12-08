@@ -8,9 +8,6 @@
 
 namespace IcedCappuccino\Filter;
 
-
-use function PHPSTORM_META\type;
-
 class Stack
 {
     private $stack = [];

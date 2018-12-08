@@ -23,7 +23,7 @@ abstract class ControllorAbstract
     public function __construct($module,$method){
         try{
             if (Config::isModules($module)){
-                $str_module = "IcedCappuccino\M\\".$module."ModuleClass";
+                $str_module = "IcedCappuccino\Module\\".$module."ModuleClass";
                 require_once __DIR__."/../Module/".$module."ModuleClass.php";
                 $this->m = new $str_module();
                 $this->method = $method;

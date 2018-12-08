@@ -6,9 +6,9 @@
  * Time: 23:19
  */
 
-namespace IcedCappuccino\M;
+namespace IcedCappuccino\Module;
 
-use IcedCappuccino\C\Router;
+use IcedCappuccino\Controllor\Router;
 use IcedCappuccino\ModuleAbstract;
 
 if (isset($_POST['cet_sessionid']))

@@ -6,7 +6,7 @@
  * Time: 12:27
  */
 
-namespace IcedCappuccino\C;
+namespace IcedCappuccino\Controllor;
 
 
 use IcedCappuccino\Config;
@@ -24,20 +24,19 @@ class Router
         $arr = explode("/",$_SERVER["REQUEST_URI"]);
         if (in_array("IcedCappuccino",$arr)){
             @$req = [
-                $_SERVER['REQUEST_METHOD'],
                 $arr[2],
                 $arr[3],
                 $arr[4]
             ];
         }else{
             @$req = [
-                $_SERVER['REQUEST_METHOD'],
                 $arr[1],
                 $arr[2],
                 $arr[3]
             ];
         }
-        $req[3] = explode("?",$arr[count($arr)-1])[0];
+        $req[count($req)-1] = explode("?",$arr[count($arr)-1])[0];
+//        var_dump($req);
         self::routeStart($req);
     }
 
@@ -48,11 +47,11 @@ class Router
      */
     private static function routeStart($arr_action){
         try{
-            if (Config::isControllor($arr_action[1])){
-                $str_controllor = "IcedCappuccino\C\\$arr_action[1]ControllorClass";
-                @$str_module = $arr_action[2];
-                @$str_method = $arr_action[3];
-                include_once __DIR__."/$arr_action[1]ControllorClass.php";
+            if (Config::isControllor($arr_action[0])){
+                $str_controllor = "IcedCappuccino\Controllor\\$arr_action[0]ControllorClass";
+                @$str_module = $arr_action[1];
+                @$str_method = $arr_action[2];
+                include_once __DIR__."/$arr_action[0]ControllorClass.php";
                 @$obj = new $str_controllor($str_module,$str_method);
                 @$obj->run();
                 exit();
@@ -79,10 +78,6 @@ class Router
 
         //数据排序，转换成get数据格式（https://example.com?key=val&key=val）
         if (isset($data)){
-//            if (strpos($url,"?") != -1)
-//                $str_date .= "&";
-//            else
-//                $str_date .= "?";
             $str_date .= (strpos($url,"?") > -1) ? "&":"?";
             $stack = new Stack();
             foreach ($data as $key => $val){

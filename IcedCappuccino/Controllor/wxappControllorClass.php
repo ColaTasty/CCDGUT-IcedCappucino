@@ -6,7 +6,7 @@
  * Time: 1:03
  */
 
-namespace IcedCappuccino\C;
+namespace IcedCappuccino\Controllor;
 
 
 use IcedCappuccino\Config;

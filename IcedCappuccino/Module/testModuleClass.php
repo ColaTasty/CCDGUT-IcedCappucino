@@ -38,7 +38,7 @@ class testModuleClass extends ModuleAbstract
 //        var_dump($_SESSION);
     }
 
-    public function dd(){
+    public function test(){
         $this->setView("test");
     }
 

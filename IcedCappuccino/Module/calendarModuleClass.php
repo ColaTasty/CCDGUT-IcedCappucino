@@ -8,6 +8,13 @@
 
 namespace IcedCappuccino\Module;
 
+/**
+ * SESSION = [
+ * "sessionKey",
+ * "expireTime",
+ * "openId",
+ * "uid"]
+ */
 if(isset($_POST['sessionid'])){
     session_id($_POST['sessionid']);
     session_start();
@@ -31,7 +38,7 @@ class calendarModuleClass extends ModuleAbstract
     public function init(){
         $sql = "SELECT tid,tname,ttime FROM CYTB_WeChat.Calendar WHERE openid=:openid";
         $where = [
-            "openid"=>$_SESSION['openId']
+            ":openid"=>$_SESSION['openId']
         ];
         $stmt = DB::executeSQL($sql,$where);
         if ($stmt->rowCount() > 0){
@@ -54,7 +61,7 @@ class calendarModuleClass extends ModuleAbstract
 
     public function buildUp(){
         $table = json_decode($_POST['table']);
-        if (empty($table->table_name)){
+        if (empty($table->table_name) || !isset($table->table_name)){
             $this->setJSON("isOK", false);
             return $this->getJSON();
         }
@@ -78,13 +85,13 @@ class calendarModuleClass extends ModuleAbstract
             "Sat" => md5($t."Sat".$_SESSION["openId"]),
             "Sun" => md5($t."Sun".$_SESSION["openId"])
         ];
-        $sql = "INSERT INTO Calendar(tname, Mon, Tue, Wed, Thu, Fri, Sat, Sun, openid, ttime) VALUES (:tname,:Mon,:Tue,:Wed,:Thu,:Fri,:Sat,:Sun,:openid,:ttime)";
+        $sql = "INSERT INTO Calendar(tname, Mon, Tue, Wed, Thu, Fri, Sat, Sun, openid, ttime,`type`) VALUES (:tname,:Mon,:Tue,:Wed,:Thu,:Fri,:Sat,:Sun,:openid,:ttime,:type)";
         $where = [
             ":tname"=>$table->table_name,
             ":openid"=>$_SESSION["openId"],
-            ":ttime" => time()
+            ":ttime" => time(),
+            ":type" =>$table->table_type
         ];
-//        var_dump($paths);
         if (!file_exists(self::TABLES_PATH))
             mkdir(self::TABLES_PATH,0777);
         if (!file_exists($str_path))
@@ -108,8 +115,21 @@ class calendarModuleClass extends ModuleAbstract
         return $this->getCallBack();
     }
 
+    /**
+     * @return array|null
+     */
     public function viewTable(){
-        $tid = $_POST['tid'];
+        if ($_POST["isEditing"] != 1 && $_GET["isEditing"] != 1){
+            $this->setView("viewCalendarTable");
+        }
+        if (!isset($_GET['tid']) && !isset($_POST['tid'])) {
+            return null;
+        }
+        elseif (isset($_POST['tid'])){
+            $tid = $_POST['tid'];
+        }else{
+            $tid = $_GET['tid'];
+        }
         $sql = "SELECT * FROM Calendar WHERE tid=:tid";
         $where = [
             ":tid" => $tid
@@ -129,6 +149,7 @@ class calendarModuleClass extends ModuleAbstract
                     'Sat' => $file_path.$row['Sat'].".JSON",
                     'Sun' => $file_path.$row['Sun'].".JSON",
                 ];
+                $this->setJSON("ttype",$row["type"]);
                 $this->setJSON("tid",$row['tid']);
                 $this->setJSON("tname",$row['tname']);
                 $this->setJSON("ttime",date("Y-m-d H:i:s",$row['ttime']));
@@ -147,15 +168,18 @@ class calendarModuleClass extends ModuleAbstract
 
     public function reBuild(){
         $tid = $_POST['tid'];
+        $type = $_POST['ttype'];
         $arr_days = [
-            ["Mon"=>!($_POST['Mon']=="false" ? false : $_POST['Mon'])],
-            ["Tue"=>!($_POST['Tue']=="false" ? false : $_POST['Tue'])],
-            ["Wed"=>!($_POST['Wed']=="false" ? false : $_POST['Wed'])],
-            ["Thu"=>!($_POST['Thu']=="false" ? false : $_POST['Thu'])],
-            ["Fri"=>!($_POST['Fri']=="false" ? false : $_POST['Fri'])],
-            ["Sat"=>!($_POST['Sat']=="false" ? false : $_POST['Sat'])],
-            ["Sun"=>!($_POST['Sun']=="false" ? false : $_POST['Sun'])],
+            "Mon"=>$_POST['Mon'],
+            "Tue"=>$_POST['Tue'],
+            "Wed"=>$_POST['Wed'],
+            "Thu"=>$_POST['Thu'],
+            "Fri"=>$_POST['Fri']
         ];
+        if ($type == "week"){
+            $arr_days["Sat"] = $_POST['Sat'];
+            $arr_days["Sun"] = $_POST['Sun'];
+        }
         $sql = "SELECT * FROM Calendar WHERE tid=:tid";
         $where = [
             ":tid" => $tid
@@ -171,14 +195,18 @@ class calendarModuleClass extends ModuleAbstract
                 $path['Wed'] = $str_path.$row['Wed'];
                 $path['Thu'] = $str_path.$row['Thu'];
                 $path['Fri'] = $str_path.$row['Fri'];
-                $path['Sat'] = $str_path.$row['Sat'];
-                $path['Sun'] = $str_path.$row['Sun'];
+                if ($type == "week"){
+                    $path['Sat'] = $str_path.$row['Sat'];
+                    $path['Sun'] = $str_path.$row['Sun'];
+                }
             }
             foreach ($arr_days as $key=>$value){
-                if ((bool)$value){
-                    $file = fopen($path[$key]."JSON","w+");
-                    if (!fwrite($file,$value))
+                if ($_POST[$key] != "0"){
+                    $file = fopen($path[$key].".JSON","w");
+                    if (!fwrite($file,$value)){
                         $this->setJSON("isOK",false);
+                        return $this->getCallBack();
+                    }
                     fclose($file);
                 }
             }
@@ -213,6 +241,178 @@ class calendarModuleClass extends ModuleAbstract
             if (!(DB::executeSQL($sql,$where)->rowCount()>0))
                 $this->setJSON("isOK",false);
         }
+        return $this->getCallBack();
+    }
+
+    public function sharingTable(){
+        $tid = $_POST['tid'];
+        if(isset($_SESSION['openId'])){
+            $openId = $_SESSION["openId"];
+        }else{
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","sessionId is NULL!");
+            return $this->getCallBack();
+        }
+        $sql = "SELECT tid,tname,openid,type,ttime,COUNT(sharebytid) FROM Calendar WHERE tid=:tid";
+        $where = [":tid"=>$tid];
+        $stmt = DB::executeSQL($sql,$where);
+        if (!($stmt->rowCount() > 0)){
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","未查到信息!");
+             return $this->getCallBack();
+        }
+        foreach ($stmt as $row){
+            $this->setJSON("table",[
+                "tid"=>$row['tid'],
+                "tname"=>$row['tname'],
+                "ttime"=>date("Y-m-d H:i:s",$row["ttime"]),
+                "type"=>$row['type'],
+                "sharedCount"=>$this->getSharingCount($tid)
+                //  ↑isOK in this function complete
+                ]);
+            $this->setJSON("isSelf",$row['openid']==$openId);
+        }
+        return $this->getCallBack();
+    }
+
+    private function getSharingCount()
+    {
+        $tid = $_POST['tid'];
+        $count = 0;
+        $sql = "SELECT COUNT('sharebyid') AS total FROM Calendar WHERE sharebytid=:tid";
+        $stmt = DB::executeSQL($sql, [":tid" => $tid]);
+        if (!($stmt)) {
+            $this->setJSON("isOK", false);
+            $this->setJSON("msg", "查找保存总数失败！请重试！");
+            return 0;
+        }
+        foreach ($stmt as $row) {
+            $count = $row['total'];
+        }
+        $this->setJSON("isOK", true);
+        return $count;
+    }
+
+    public function getTableCreator(){
+        $tid = $_POST['tid'];
+        $openId = null;
+        $stmt = DB::executeSQL("SELECT openid FROM Calendar WHERE tid=:tid",[":tid"=>$tid]);
+        if (!($stmt->rowCount() > 0)){
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","未查到创建者用户 error:01");
+            return $this->getCallBack();
+        }
+        foreach ($stmt as $row){
+            $openId = $row['openid'];
+        }
+        $sql = "SELECT openId,nickName,avatarUrl FROM WeChatUser WHERE openId=:openId";
+        $stmt = DB::executeSQL($sql,[":openId"=>$openId]);
+        if (!($stmt->rowCount() > 0)){
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","未查到创建者用户 error:02");
+            return $this->getCallBack();
+        }
+        foreach ($stmt as $row){
+            $this->setJSON("tableCreator",[
+                "nickName"=>$row['nickName'],
+                "avatarUrl"=>$row['avatarUrl']
+            ]);
+            $this->setJSON("isOK",true);
+        }
+        return $this->getCallBack();
+    }
+
+    public function saveSharingTable(){
+        $tid = $_POST['tid'];
+        if(isset($_SESSION['openId'])){
+            $openId = $_SESSION["openId"];
+        }else {
+            $this->setJSON("isOK", false);
+            $this->setJSON("msg", "请再试一次!");
+            return $this->getCallBack();
+        }
+        /**
+         * start verify table is NULL
+         */
+        $sql = "SELECT sharebytid FROM Calendar WHERE sharebytid=:sharebytid AND openid=:openid";
+        $stmt = DB::executeSQL($sql,[":sharebytid"=>$tid,":openid"=>$openId]);
+        if ($stmt->rowCount() > 0){
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","你已经保存过一份了");
+            return $this->getCallBack();
+        }
+        /**
+         * start file open & copy
+         */
+        $sql = "SELECT * FROM Calendar WHERE tid=:tid";
+        $stmt = DB::executeSQL($sql,[":tid"=>$tid]);
+        foreach ($stmt as $row){
+            $old_dir = self::TABLES_PATH.$row['openid']."/";
+            $values = [
+                ":tname"=>$row['tname'],
+                ":Mon"=>$row['Mon'],
+                ":Tue"=>$row['Tue'],
+                ":Wed"=>$row['Wed'],
+                ":Thu"=>$row['Thu'],
+                ":Fri"=>$row['Fri'],
+                ":Sat"=>$row['Sat'],
+                ":Sun"=>$row['Sun'],
+                ":openid"=>$openId,
+                ":ttime"=>time(),
+                ":type"=>$row['type'],
+                ":sharebytid"=>$tid
+            ];
+        }
+        $new_dir = self::TABLES_PATH.$openId."/";
+        $old_files = [
+            "Mon"=>$values[':Mon'],
+            "Tue"=>$values[':Tue'],
+            "Wed"=>$values[':Wed'],
+            "Thu"=>$values[':Thu'],
+            "Fri"=>$values[':Fri'],
+            "Sat"=>$values[':Sat'],
+            "Sun"=>$values[':Sun']
+        ];
+        $new_files = [
+            "Mon"=>md5(time().$openId."Mon"),
+            "Tue"=>md5(time().$openId."Tue"),
+            "Wed"=>md5(time().$openId."Wed"),
+            "Thu"=>md5(time().$openId."Thu"),
+            "Fri"=>md5(time().$openId."Fri"),
+            "Sat"=>md5(time().$openId."Sat"),
+            "Sun"=>md5(time().$openId."Sun")
+        ];
+        if(!file_exists($new_dir)){
+            mkdir($new_dir);
+        }
+        foreach ($old_files as $day => $value){
+            $old_file = fopen($old_dir.$value.".JSON","r");
+            $new_file = fopen($new_dir.$new_files[$day].".JSON","w");
+            chmod($new_dir.$new_files[$day].".JSON",0777);
+            if (!fwrite($new_file,fread($old_file,filesize($old_dir.$value.".JSON")))){
+                $this->setJSON("isOK",false);
+                $this->setJSON("msg","周程表保存失败: ".$day);
+                fclose($old_file);
+                fclose($new_file);
+                return $this->getCallBack();
+            }
+            fclose($old_file);
+            fclose($new_file);
+        }
+        /**
+         * start insert informations into DB
+         */
+        foreach ($new_files as $key => $value){
+            $values[":".$key] = $value;
+        }
+        $sql = "INSERT INTO Calendar(tname,Mon,Tue,Wed,Thu,Fri,Sat,Sun,openid,ttime,type,sharebytid) VALUES(:tname,:Mon,:Tue,:Wed,:Thu,:Fri,:Sat,:Sun,:openid,:ttime,:type,:sharebytid)";
+        $stmt = DB::executeSQL($sql,$values);
+        if (!($stmt->rowCount() > 0)){
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","添加周程表失败");
+            return $this->getCallBack();
+        }
+        $this->setJSON("isOK",true);
         return $this->getCallBack();
     }
 }

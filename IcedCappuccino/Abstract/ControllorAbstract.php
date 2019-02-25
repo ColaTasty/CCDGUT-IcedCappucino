@@ -18,7 +18,15 @@ abstract class ControllorAbstract
     protected $response = "";
 
 //    abstract public function setModules($modules);
-    abstract public function run();
+    public function run(){
+        try{
+            $str_method = $this->method;
+            @$this->response = $this->m->$str_method();
+        }catch (\Exception $exception){
+            exit("<br>There is error ".$this->method."in ".$this->m."ModuleClass!!!");
+        }
+        $this->toView($this->m->getView());
+    }
 
     public function __construct($module,$method){
         try{
@@ -47,6 +55,7 @@ abstract class ControllorAbstract
             }
         } catch (\Exception $exception){
             header("status:404");
+            header("content-type:text/html");
             include_once __DIR__ . "/../View/404.php";
         }
     }

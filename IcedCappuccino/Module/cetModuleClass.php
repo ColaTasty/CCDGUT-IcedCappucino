@@ -17,10 +17,9 @@ session_start();
 class cetModuleClass extends ModuleAbstract
 {
 //    private static $dd = [];
-
+    private $canUse;
     public function __construct()
     {
-
     }
 
     public function verify(){
@@ -72,8 +71,13 @@ class cetModuleClass extends ModuleAbstract
     public function getDd(){
         $res = Router::httpGet("http://cet.neea.edu.cn/cet/js/data.js");
         $str_tmp = str_replace("var dq=","",$res['res']);
+        $dd = json_decode(str_replace(";","",$str_tmp));
+        $t = strtotime(str_replace("/","-",$dd->qt));
+        $this->canUse = $canUse = time() > $t;
+        $this->setJSON("canUse",$this->canUse);
+        $this->setJSON("msg","请至".date("m月d日H:i",$t)."后前来查询2018年下半年成绩");
         $this->setJSON("isOK",$res['header']["http_code"]==200);
-        $this->setJSON("dd",json_decode(str_replace(";","",$str_tmp)));
+        $this->setJSON("dd",$dd);
         return $this->getCallBack();
     }
 
@@ -127,7 +131,7 @@ class cetModuleClass extends ModuleAbstract
 
     public function unsetSession(){
         session_destroy();
-        if (isset($_SESSION['cookie'])){
+        if (!isset($_SESSION['cookie'])){
             $this->setJSON("isOK",true);
             $this->setJSON("msg","cet_session已被销毁");
         }else{

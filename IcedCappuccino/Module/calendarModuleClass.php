@@ -36,6 +36,11 @@ class calendarModuleClass extends ModuleAbstract
     }
 
     public function init(){
+        if (!$_SESSION){
+            $this->setJSON("isOK",false);
+            $this->setJSON("msg","用户身份过期，请重启小程序后再使用");
+            return $this->getCallBack();
+        }
         $sql = "SELECT tid,tname,ttime FROM CYTB_WeChat.Calendar WHERE openid=:openid";
         $where = [
             ":openid"=>$_SESSION['openId']

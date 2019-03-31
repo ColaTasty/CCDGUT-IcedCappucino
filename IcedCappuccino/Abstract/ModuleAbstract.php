@@ -20,6 +20,9 @@ abstract class ModuleAbstract
         $this->v = $name_view;
     }
 
+    /**
+     * @return string
+     */
     public function getView(){
         return $this->v;
     }

@@ -47,6 +47,6 @@ class testModuleClass extends ModuleAbstract
     }
 
     public function school(){
-
+        header("Location:http://10.20.208.11");
     }
 }

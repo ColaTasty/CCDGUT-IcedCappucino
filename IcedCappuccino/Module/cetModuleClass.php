@@ -25,14 +25,14 @@ class cetModuleClass extends ModuleAbstract
     public function verify(){
         $_SESSION['cookie'] = [];
 
-        if (!isset($_POST['i'])){
+        if (!isset($_POST['i'])  && !isset($_GET['i'])){
             $this->setJSON("isOK",false);
             $this->setJSON("msg","没有输入准考证号");
             return $this->getCallBack();
         }
         $data = [
             "c" => "CET",
-            "ik" => $_POST["i"],
+            "ik" => isset($_POST['i']) ? $_POST['i'] : $_GET['i'],
             "t" => random_int(1,100),
         ];
         $header = [
@@ -74,8 +74,10 @@ class cetModuleClass extends ModuleAbstract
         $dd = json_decode(str_replace(";","",$str_tmp));
         $t = strtotime(str_replace("/","-",$dd->qt));
         $this->canUse = $canUse = time() > $t;
+//        $this->canUse = false;
         $this->setJSON("canUse",$this->canUse);
-        $this->setJSON("msg","请至".date("m月d日H:i",$t)."后前来查询2018年下半年成绩");
+//        $this->setJSON("msg","请至".date("m月d日H:i",$t)."后前来查询2018年下半年成绩");
+//        $this->setJSON("msg","成绩服务器原因导致验证码获取失败，请同学移步官网 http://cet.neea.edu.cn/cet 查询\n(官网原因，可能部分人可以访问成绩官网)");
         $this->setJSON("isOK",$res['header']["http_code"]==200);
         $this->setJSON("dd",$dd);
         return $this->getCallBack();

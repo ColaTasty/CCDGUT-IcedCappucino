@@ -11,7 +11,10 @@ namespace IcedCappuccino;
 
 abstract class ControllorAbstract
 {
-    protected $m = "";
+    /**
+     * @var ModuleAbstract
+     */
+    protected $m;
     protected $v = "";
     protected $method = "";
     protected $modules_list = [];
@@ -21,7 +24,10 @@ abstract class ControllorAbstract
     public function run(){
         try{
             $str_method = $this->method;
-            @$this->response = $this->m->$str_method();
+            if(method_exists($this->m,$str_method))
+                $this->response = $this->m->$str_method();
+            else
+                throw new \Exception();
         }catch (\Exception $exception){
             exit("<br>There is error ".$this->method."in ".$this->m."ModuleClass!!!");
         }

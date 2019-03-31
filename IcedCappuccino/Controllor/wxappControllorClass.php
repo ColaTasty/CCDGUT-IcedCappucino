@@ -19,7 +19,8 @@ class wxappControllorClass extends ControllorAbstract
         Config::setModules([
             "cet",
             "calendar",
-            "wxBusiness"
+            "wxBusiness",
+            "vote"
         ]);
         parent::__construct($module, $method);
     }

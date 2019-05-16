@@ -53,8 +53,6 @@ class DB
      */
     public static function executeSQL($sql,$where=[]){
         try{
-//            $dsn = self::$type.":host=".self::$host.";dbname=".self::$name.";charset=".self::$charset;
-//            self::$pdo = new \PDO($dsn,self::$user,self::$password);
             $stmt = self::$pdo->prepare($sql);
             $stmt->execute($where);
             if(!$stmt){

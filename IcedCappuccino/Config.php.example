@@ -11,9 +11,9 @@ namespace IcedCappuccino;
 DB::set([
     "name" => "CYTB_WeChat",
     "password" => "",
-    "type" => "mysql",
-    "host" => "localhost",
-    "user" => "cytb"
+    "type" => "",
+    "host" => "",
+    "user" => ""
 ]);
 class Config
 {

@@ -68,4 +68,8 @@ class DB
         }
         return $stmt;
     }
+
+    public static function getPDO(){
+        return self::$pdo;
+    }
 }

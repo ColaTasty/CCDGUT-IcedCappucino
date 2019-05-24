@@ -21,7 +21,8 @@ class wxappControllorClass extends ControllorAbstract
             "calendar",
             "wxBusiness",
             "vote",
-            "iloveu"
+            "iloveu",
+            "msg"
         ]);
         parent::__construct($module, $method);
     }

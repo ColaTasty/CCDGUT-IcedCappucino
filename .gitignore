@@ -1,3 +1,6 @@
 .idea/*
 configuration.php
 Config.php
+*.iml
+*.ipr
+*.iws

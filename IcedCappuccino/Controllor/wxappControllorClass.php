@@ -26,15 +26,4 @@ class wxappControllorClass extends ControllorAbstract
         ]);
         parent::__construct($module, $method);
     }
-
-//    public function run()
-//    {
-//        try{
-//            $str_method = $this->method;
-//            @$this->response = $this->m->$str_method();
-//        }catch (\Exception $exception){
-//            exit("<br>There is error ".$this->method."in ".$this->m."ModuleClass!!!");
-//        }
-//        $this->toView($this->m->getView());
-//    }
 }

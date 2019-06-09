@@ -6,7 +6,7 @@
  * Time: 23:52
  */
 
-\IcedCappuccino\C\Router::routeRun();
+\IcedCappuccino\Controllor\Router::routeRun();
 //echo $_SERVER["REQUEST_URI"]."<br>";
 //echo $_SERVER["REQUEST_TIME"]."<br>";
 //echo $_SERVER["REQUEST_METHOD"]."<br>";

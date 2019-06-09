@@ -24,16 +24,31 @@ class libControllorClass extends ControllorAbstract
 
     public function toView($view_name)
     {
-        try{
-            if (file_exists(__DIR__."/../View/css/$view_name.css"))
-                include_once __DIR__."/../View/css/$view_name.css";
-            elseif (file_exists(__DIR__."/../View/js/$view_name.js"))
-                include_once __DIR__."/../View/js/$view_name.js";
-            else{
-                throw new \Exception("Page $view_name is not found!!!",404);
+        try {
+            if (file_exists(__DIR__ . "/../View/css/$view_name.css")) {
+                include_once __DIR__ . "/../View/css/$view_name.css";
+                return;
             }
-        } catch (\Exception $exception){
-            header("status:".$exception->getCode());
+            if (file_exists(__DIR__ . "/../View/js/$view_name.js")) {
+                include_once __DIR__ . "/../View/js/$view_name.js";
+                return;
+            }
+            if (file_exists(__DIR__ . "/../View/image/$view_name.png")) {
+                include_once __DIR__ . "/../View/image/$view_name.png";
+                return;
+            }
+            if (file_exists(__DIR__ . "/../View/image/$view_name.ico")) {
+                include_once __DIR__ . "/../View/image/$view_name.ico";
+                return;
+            }
+
+            if (file_exists(__DIR__ . "/../View/image/$view_name.jpg")) {
+                include_once __DIR__ . "/../View/image/$view_name.jpg";
+                return;
+            }
+            throw new \Exception("Page $view_name is not found!!!", 404);
+        } catch (\Exception $exception) {
+            header("status:" . $exception->getCode());
             header("content-type:text/html");
             include_once __DIR__ . "/../View/404.php";
         }

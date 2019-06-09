@@ -12,5 +12,5 @@ namespace IcedCappuccino\ModuleConfig;
 interface iloveuConfig
 {
     const canUse = true;
-    const inform = "在小吧吧几天的不懈努力下，表白墙终于上线啦！快来写上你对ta的爱意吧~~";
+    const inform = "快来写上你对ta的爱意吧~~";
 }

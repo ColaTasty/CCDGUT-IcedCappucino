@@ -17,4 +17,9 @@ class msgModuleClass extends ModuleAbstract
         $this->setView("pleaseUpdateWxapp");
         return $this->getCallBack();
     }
+
+    public function wxqun_xin_shen(){
+        $this->setView("wxqunXinShen");
+        return $this->getCallBack();
+    }
 }

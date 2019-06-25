@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <title>【城院贴吧】新生微信群</title>
+    <title>【城院贴吧】2019新生咨询群</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <meta content="width=device-width,user-scalable=no" name="viewport">
     <style>
@@ -64,7 +64,10 @@
     <hr>
     <div class="content-item">
         <a href="https://jq.qq.com/?_wv=1027&k=5VW1ESc" class="location">点我加入2019级新生咨询【QQ】群</a>
-        <p id="comment">👆进QQ群哦👆</p>
+        <img src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/png?png=QQqun" alt="QQ群" id="qr-code" onclick="img_onClick(this)">
+        <a href="javascript:void(0)" class="location" id="qq-copy" qq="770341598" onclick="qq_onClick(this)">点我复制QQ群号【770341598】</a>
+        <input type="text" style="position: fixed;top: -50px;left: -50px;" id="tmp-qq-copy"/>
+<!--        <p id="comment">👆进QQ群哦👆</p>-->
     </div>
     <hr>
     <div class="content-item">
@@ -86,7 +89,16 @@
 <script>
     let img_onClick = function (e) {
         location.href = e.getAttribute("src");
-    }
+    };
+    let qq_onClick = function (e) {
+        let tmp = document.getElementById("tmp-qq-copy");
+        let qq = e.getAttribute("qq");
+        tmp.value = qq;
+        tmp.focus();
+        tmp.select();
+        document.execCommand("Copy");
+        alert("复制成功！快去QQ粘贴加群吧！");
+    };
 </script>
 </body>
 </html>

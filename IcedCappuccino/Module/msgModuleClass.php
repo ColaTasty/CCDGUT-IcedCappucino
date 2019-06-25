@@ -22,4 +22,9 @@ class msgModuleClass extends ModuleAbstract
         $this->setView("wxqunXinShen");
         return $this->getCallBack();
     }
+
+    public function test(){
+        $this->setJSON("msg","什么鬼？");
+        return $this->getCallBack();
+    }
 }

@@ -11,6 +11,7 @@ namespace IcedCappuccino\Controllor;
 
 use IcedCappuccino\Config;
 use IcedCappuccino\Filter\Stack;
+use function PHPSTORM_META\elementType;
 
 class Router
 {
@@ -20,45 +21,37 @@ class Router
      * @param null
      * @return void
      */
-    public static function routeRun(){
-        $arr = explode("/",$_SERVER["REQUEST_URI"]);
-        if (in_array("IcedCappuccino",$arr)){
-            @$req = [
-                $arr[2],
-                $arr[3],
-                $arr[4]
-            ];
-        }else{
-            @$req = [
-                $arr[1],
-                $arr[2],
-                $arr[3]
-            ];
-        }
-        $req[count($req)-1] = explode("?",$arr[count($arr)-1])[0];
-//        var_dump($req);
+    public static function routeRun()
+    {
+        if (strpos($_SERVER["REQUEST_URI"], "?") != false)
+            $uri = substr($_SERVER["REQUEST_URI"], 1, strpos($_SERVER["REQUEST_URI"], "?") - 1);
+        else
+            $uri = substr($_SERVER["REQUEST_URI"], 1);
+        $segments = explode("/", $uri);
+        $req = [$segments[1], $segments[2], $segments[3]];
         self::routeStart($req);
     }
 
     /**
      * @access private
-     * @param array | $arr_action[0] = "ControllorNname" ,$arr_action[1] = "ModuleNname" ,$arr_action[2] = "MethodNname"
+     * @param array | $arr_action [0] = "ControllorNname" ,$arr_action[1] = "ModuleNname" ,$arr_action[2] = "MethodNname"
      * @return void
      */
-    private static function routeStart($arr_action){
-        try{
-            if (Config::isControllor($arr_action[0])){
+    private static function routeStart($arr_action)
+    {
+        try {
+            if (Config::isControllor($arr_action[0])) {
                 $str_controllor = "IcedCappuccino\Controllor\\$arr_action[0]ControllorClass";
                 @$str_module = $arr_action[1];
                 @$str_method = $arr_action[2];
-                include_once __DIR__."/$arr_action[0]ControllorClass.php";
-                @$obj = new $str_controllor($str_module,$str_method);
+                include_once __DIR__ . "/$arr_action[0]ControllorClass.php";
+                @$obj = new $str_controllor($str_module, $str_method);
                 @$obj->run();
                 exit();
-            }else{
-                throw new \Exception("<br>There is no $arr_action[1]ControllorClass!!");
-            }}
-        catch (\Exception $exception){
+            } else {
+                throw new \Exception("<br>There is no $arr_action[1]ModuleClass!!");
+            }
+        } catch (\Exception $exception) {
             exit($exception->getMessage());
         }
     }
@@ -72,20 +65,21 @@ class Router
      * @param boolean
      * @return array
      */
-    public static function httpGet($url, $data = null, $header = [],$cookie = [], $need_header = false){
+    public static function httpGet($url, $data = null, $header = [], $cookie = [], $need_header = false)
+    {
         $str_date = "";
         $curl = curl_init();
 
         //数据排序，转换成get数据格式（https://example.com?key=val&key=val）
-        if (isset($data)){
-            $str_date .= (strpos($url,"?") > -1) ? "&":"?";
+        if (isset($data)) {
+            $str_date .= (strpos($url, "?") > -1) ? "&" : "?";
             $stack = new Stack();
-            foreach ($data as $key => $val){
-                $stack->push([$key=>$val]);
+            foreach ($data as $key => $val) {
+                $stack->push([$key => $val]);
             }
 
-            while (!$stack->isEmpty()){
-                foreach ($stack->pop(true) as $key => $val){
+            while (!$stack->isEmpty()) {
+                foreach ($stack->pop(true) as $key => $val) {
                     $str_date .= "$key=$val";
                 }
                 if (!$stack->isEmpty())
@@ -98,7 +92,7 @@ class Router
 
         //设置curl句柄
         curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl,CURLOPT_ENCODING,"gzip");
+        curl_setopt($curl, CURLOPT_ENCODING, "gzip");
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_HEADER, $need_header);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);//绕过ssl验证
@@ -106,22 +100,22 @@ class Router
 
         //设置header
         $arr_header_tmp = [];
-        if (!empty($header)){
+        if (!empty($header)) {
             $i = 0;
-            foreach ($header as $key => $value){
+            foreach ($header as $key => $value) {
                 $arr_header_tmp[$i] = "$key:$value";
                 $i++;
             }
         }
-        curl_setopt($curl,CURLOPT_HTTPHEADER,$arr_header_tmp);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $arr_header_tmp);
 
         //设置cookie
-        if (!empty($cookie)){
+        if (!empty($cookie)) {
             $str_cookie_tmp = "";
-            foreach ($cookie as $key => $value){
+            foreach ($cookie as $key => $value) {
                 $str_cookie_tmp .= "$key=$value;";
             }
-            curl_setopt($curl,CURLOPT_COOKIE,$str_cookie_tmp);
+            curl_setopt($curl, CURLOPT_COOKIE, $str_cookie_tmp);
         }
 
         //执行curl
@@ -131,24 +125,25 @@ class Router
 
         return [
             "url" => $url,
-            "header"=> $info,
+            "header" => $info,
             "res" => $res,
         ];
     }
 
-    public static function httpPost($url, $data = null, $header = [],$cookie = [],$need_header = false){
+    public static function httpPost($url, $data = null, $header = [], $cookie = [], $need_header = false)
+    {
         $curl = curl_init();
         $str_date = "";
 
         //数据排序，转换成post数据格式（key=val&key=val）
-        if (isset($data)){
+        if (isset($data)) {
             $stack = new Stack();
-            foreach ($data as $key => $val){
-                $stack->push([$key=>$val]);
+            foreach ($data as $key => $val) {
+                $stack->push([$key => $val]);
             }
 
-            while (!$stack->isEmpty()){
-                foreach ($stack->pop(true) as $key => $val){
+            while (!$stack->isEmpty()) {
+                foreach ($stack->pop(true) as $key => $val) {
                     $str_date .= "$key=$val";
                 }
                 if (!$stack->isEmpty())
@@ -158,35 +153,35 @@ class Router
         }
 
         //设置curl句柄
-        curl_setopt($curl,CURLOPT_URL, $url);
-        curl_setopt($curl,CURLOPT_ENCODING,"gzip");
-        curl_setopt($curl,CURLOPT_HEADER,$need_header);
-        curl_setopt($curl,CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_ENCODING, "gzip");
+        curl_setopt($curl, CURLOPT_HEADER, $need_header);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);//绕过ssl验证
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 100);
-        curl_setopt($curl,CURLOPT_POSTFIELDS, $str_date);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $str_date);
 
         //设置header
         $arr_header_tmp = [];
-        if (!empty($header)){
+        if (!empty($header)) {
             $i = 0;
-            foreach ($header as $key => $value){
+            foreach ($header as $key => $value) {
                 $arr_header_tmp[$i] = "$key:$value";
                 $i++;
             }
         }
         if (!isset($header['Content-type']) || !isset($header['content-type']))
-            array_push($arr_header_tmp,'Content-type:application/x-www-form-urlencoded;charset=utf-8');
-        curl_setopt($curl,CURLOPT_HTTPHEADER,$arr_header_tmp);
+            array_push($arr_header_tmp, 'Content-type:application/x-www-form-urlencoded;charset=utf-8');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $arr_header_tmp);
 
         //设置cookie
-        if (!empty($cookie)){
+        if (!empty($cookie)) {
             $str_cookie_tmp = "";
-            foreach ($cookie as $key => $value){
+            foreach ($cookie as $key => $value) {
                 $str_cookie_tmp .= "$key=$value;";
             }
-            curl_setopt($curl,CURLOPT_COOKIE,$str_cookie_tmp);
+            curl_setopt($curl, CURLOPT_COOKIE, $str_cookie_tmp);
         }
 
         //执行curl

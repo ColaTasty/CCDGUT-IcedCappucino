@@ -10,6 +10,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <meta content="width=device-width,user-scalable=no" name="viewport">
     <title>请升级你的微信</title>
     <style>
         p{
@@ -17,7 +18,7 @@
             width: 100%;
             height: 50px;
             text-align: center;
-            font-size:30px;
+            font-size:15px;
             font-weight: bold;
         }
         span.red{

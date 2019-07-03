@@ -2,7 +2,7 @@
 /**
  * Author 黎江 Makia98
  * Create By IDEA
- * On 2019-07-03 23:46
+ * On 2019-07-03 23:47
  */
 ini_set("display_errors", 'On');
 $page = isset($_GET["page"]) ? $_GET["page"] : 1;

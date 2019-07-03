@@ -23,11 +23,6 @@ class msgModuleClass extends ModuleAbstract
         return $this->getCallBack();
     }
 
-    public function tieba_new_name(){
-        $this->setView("viewNewTiebaName");
-        return $this->getCallBack();
-    }
-
     public function test(){
         $this->setJSON("msg","什么鬼？");
         return $this->getCallBack();

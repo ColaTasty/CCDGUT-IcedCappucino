@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <title>【大学四年】2019新生咨询群</title>
+    <title>【城院贴吧】2019新生咨询群</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <meta content="width=device-width,user-scalable=no" name="viewport">
     <style>
@@ -85,6 +85,22 @@
              onclick="img_onClick(this)" alt="新生群④"/>
         <p id="comment">新生咨询群④</p>
     </div>
+<!--    <hr>-->
+<!--    <div class="content-item">-->
+<!--        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/png?png=qun2"-->
+<!--             onclick="img_onClick(this)" alt="新生群②"/>-->
+<!--        <p id="comment">新生咨询群②</p>-->
+<!--    </div>-->
+<!--    <div class="content-item">-->
+<!--        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/png?png=qun3"-->
+<!--             onclick="img_onClick(this)" alt="新生群③"/>-->
+<!--        <p id="comment">新生咨询群③</p>-->
+<!--    </div>-->
+<!--    <div class="content-item">-->
+<!--        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/jpg?jpg=qun4"-->
+<!--             onclick="img_onClick(this)" alt="新生群④"/>-->
+<!--        <p id="comment">新生咨询群④</p>-->
+<!--    </div>-->
 </div>
 <script>
     let img_onClick = function (e) {

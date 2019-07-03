@@ -50,20 +50,40 @@
     </style>
 </head>
 <body>
-<input type="text" style="position: fixed;top: -50px;left: -50px;" id="tmp-copy"/>
 <div id="content-box">
     <div class="content-item">
-        <p id="comment" style="color: red;">新生咨询群1、2、3、4已满100人</p>
-        <p id="comment">请添加机器人微信，它能拉你进更多群！</p>
-        <a href="javascript:void(0)" class="location" account="cytb666666" onclick="wx_onClick(this)">点我复制机器人微信【cytb666666】</a>
+        <p id="comment">添加机器人微信，获取更多好玩的的姿势^_^</p>
         <img src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/jpg?jpg=AI" alt="AI机器人微信"
              onclick="img_onClick(this)" id="qr-code" />
     </div>
+    <!--    <div class="content-item">-->
+    <!--        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/jpg?jpg=qun1" alt="新生群①"/>-->
+    <!--        <p id="comment">已满100人，请加【城院贴吧AI机器人】邀请进群</p>-->
+    <!--        <p id="comment">新生咨询群①</p>-->
+    <!--    </div>-->
     <hr>
     <div class="content-item">
         <a href="https://jq.qq.com/?_wv=1027&k=5VW1ESc" class="location">点我加入2019级新生咨询【QQ】群</a>
         <img src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/png?png=QQqun" alt="QQ群" id="qr-code" onclick="img_onClick(this)">
-        <a href="javascript:void(0)" class="location" id="qq-copy" account="770341598" onclick="qq_onClick(this)">点我复制QQ群号【770341598】</a>
+        <a href="javascript:void(0)" class="location" id="qq-copy" qq="770341598" onclick="qq_onClick(this)">点我复制QQ群号【770341598】</a>
+        <input type="text" style="position: fixed;top: -50px;left: -50px;" id="tmp-qq-copy"/>
+<!--        <p id="comment">👆进QQ群哦👆</p>-->
+    </div>
+    <hr>
+    <div class="content-item">
+        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/png?png=qun2"
+             onclick="img_onClick(this)" alt="新生群②"/>
+        <p id="comment">新生咨询群②</p>
+    </div>
+    <div class="content-item">
+        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/png?png=qun3"
+             onclick="img_onClick(this)" alt="新生群③"/>
+        <p id="comment">新生咨询群③</p>
+    </div>
+    <div class="content-item">
+        <img id="qr-code" src="https://ccdgut.yuninter.net/IcedCappuccino/lib/lib/jpg?jpg=qun4"
+             onclick="img_onClick(this)" alt="新生群④"/>
+        <p id="comment">新生咨询群④</p>
     </div>
 </div>
 <script>
@@ -71,22 +91,13 @@
         location.href = e.getAttribute("src");
     };
     let qq_onClick = function (e) {
-        let tmp = document.getElementById("tmp-copy");
-        let qq = e.getAttribute("account");
+        let tmp = document.getElementById("tmp-qq-copy");
+        let qq = e.getAttribute("qq");
         tmp.value = qq;
         tmp.focus();
         tmp.select();
         document.execCommand("Copy");
         alert("复制成功！快去QQ粘贴加群吧！");
-    };
-    let wx_onClick = function (e) {
-        let tmp = document.getElementById("tmp-copy");
-        let qq = e.getAttribute("account");
-        tmp.value = qq;
-        tmp.focus();
-        tmp.select();
-        document.execCommand("Copy");
-        alert("复制成功！快去微信粘贴添加吧！");
     };
 </script>
 </body>

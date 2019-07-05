@@ -5,7 +5,14 @@
  * On 2019-07-03 23:46
  */
 ini_set("display_errors", 'On');
-$dsn = "mysql:host=localhost;dbname=;charset=utf8";
+$token = "cytb";
+$admin = ;
+$page = !empty($_GET["page"]) ? $_GET["page"] : 1;
+if ($page > 1)
+    $start = (($page - 1) * 10) + 1;
+else
+    $start = $page - 1;
+$dsn = "mysql:host=;dbname=;charset=utf8";
 $pdo = new PDO($dsn, "", "");
 $sql = "";
 $stmt = $pdo->prepare($sql);
@@ -52,20 +59,10 @@ if (!$stmt) {
             background-color: #3d3d3d;
         }
 
-        .cytb-header h2 {
+        .cytb-header h2,
+        .cytb-header h5 {
             color: #f9f9f9;
             text-align: center;
-        }
-        .cytb-pager{
-            display: block;
-            width: 80%;
-            height: 50px;
-            margin: auto 0;
-            background-color: green;
-            list-style: none;
-        }
-        .cytb-pager li{
-            float: left;
         }
     </style>
 </head>
@@ -74,17 +71,13 @@ if (!$stmt) {
     <br>
     <h2>城院贴吧</h2>
     <h2>新公众号名字征集</h2>
+    <h5>共收录了<span class="badge badge-secondary" id="total-name" style="color: #d3d9df">---</span>个名字</h5>
 </div>
 <table class="table table-striped">
-    <tr>
+    <tr style="position: -webkit-sticky;position: sticky;">
         <th class="th-name"><span style="display: block;padding-top: 6%">名字</span></th>
         <th class="th-contact"><span style="display: block;padding-top: 6%">联系方式</span></th>
         <th class="th-time">提交<br>时间</th>
-    </tr>
-    <tr>
-        <td>1</td>
-        <td>2</td>
-        <td>3</td>
     </tr>
     <?php
     foreach ($stmt as $row) {
@@ -101,12 +94,54 @@ if (!$stmt) {
     }
     ?>
 </table>
-<ul class="cytb-pager">
-    <li>&laquo;</li>
-    <li></li>
-    <li>&raquo;</li>
+<?php
+$stmt = $pdo->prepare("");
+$stmt->execute();
+if (!$stmt)
+    exit("<h1>页码找错了！！</h1>");
+else {
+    foreach ($stmt as $row) {
+        $total = $row["total"];
+    }
+    $tmp = $total % 10;
+    $total_page = $tmp == 0 ? $total / 10 : ($total - $tmp) / 10 + 1;
+}
+?>
+<ul class="pagination justify-content-center" id="bottom">
+    <?php if ($page - 1 <= 0): ?>
+        <li class="page-item disabled"><a class="page-link"
+                                          href="javascript:void(0)">&laquo;</a>
+        </li>
+    <?php else: ?>
+        <li class="page-item"><a class="page-link"
+                                 href="https://ccdgut.yuninter.net/IcedCappuccino/wxapp/msg/tieba_new_name?page=<?php echo $page - 1; ?>">&laquo;</a>
+        </li>
+    <?php endif; ?>
+    <li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="jumpToPage()"><?php echo $page; ?>
+            &nbsp;/&nbsp;<?php echo $total_page; ?></a></li>
+    <?php if ($page == $total_page): ?>
+        <li class="page-item disabled"><a class="page-link"
+                                          href="javascript:void(0)">&raquo;</a>
+        </li>
+    <?php else: ?>
+        <li class="page-item"><a class="page-link"
+                                 href="https://ccdgut.yuninter.net/IcedCappuccino/wxapp/msg/tieba_new_name?page=<?php echo $page + 1; ?>">&raquo;</a>
+        </li>
+    <?php endif; ?>
 </ul>
 <script src="/makia/lib/lib/js?js=jquery-3.3.1"></script>
 <script src="/makia/lib/lib/js?js=bootstrap.min"></script>
+<script>
+    document.getElementById("total-name").innerText = <?php echo $total; ?>;
+    let jumpToPage = function () {
+        let total_page = <?php echo $total_page; ?>;
+        let page = prompt("请输入跳转至多少页(共" + total_page + "页)");
+        if (page > total_page) {
+            alert("总共" + total_page + "页，你要跳转的是" + page + "页！");
+        } else if (page.length > 0) {
+            location.href = "https://ccdgut.yuninter.net/IcedCappuccino/wxapp/msg/tieba_new_name?page=" + page;
+        }
+    }
+</script>
 </body>
 </html>

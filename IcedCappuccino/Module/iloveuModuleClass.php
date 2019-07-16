@@ -178,6 +178,7 @@ class iloveuModuleClass extends ModuleAbstract implements iloveuConfig
         }
 //        普通获取告白
         $start = $hasCount - 5 > 0 ? $hasCount - 5 : 0;
+        $start = $hasCount >= 10 ? $hasCount + 1 : $start;
         $need = 10;
         $sql = "SELECT mid FROM ILOVEUMessages WHERE status=1 ORDER BY mid DESC LIMIT {$start},{$need}";
         $stat = DB::executeSQL($sql);
